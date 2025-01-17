@@ -1,30 +1,46 @@
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import React, { useEffect, useState } from 'react'
-import { auth } from '../firebase'
+import { auth, storage } from '../firebase'
 import { Button } from 'react-bootstrap'
-import { Navigate, useNavigate } from 'react-router'
+import { Link, Navigate, useNavigate } from 'react-router'
+import { getDownloadURL, ref } from 'firebase/storage'
 
 export default function Profile() {
-    const [user, setUser] = useState(null)
     const [error, setError] = useState("")
+    const [email, setEmail] = useState("")
+    const [imageUrl, setImageUrl] = useState("")
+    const [user, setUser] = useState(null)
 
     const currentUser = auth.currentUser
 
     const navigate = useNavigate()
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser)
-        })
+      const unsubscribe = onAuthStateChanged(auth, user => {
+        setUser(user)
+        setEmail(user.email)
+      })
 
-        return () => unsubscribe()
+      return () => unsubscribe()
+    }, [])
+
+    useEffect(() => {
+      if (!currentUser.photoURL) {
+        const defaultImageRef = ref(storage, "profileImages/default.jpg")
+        getDownloadURL(defaultImageRef).then(downloadURL => {
+          setImageUrl(downloadURL)
+        })
+      } else {
+        setImageUrl(currentUser.photoURL)
+      }
+      
     }, [])
 
     async function handleLogout(e) {
         e.preventDefault()
         try {
             await signOut(auth)
-            navigate("/login")
+            navigate("/signIn")
         }
         catch (err) {
             setError("An error logging out: " + err.message)
@@ -32,11 +48,15 @@ export default function Profile() {
     }
 
   return (
-    currentUser ? <Navigate to="/login" /> :
+    !currentUser ? <Navigate to="/signIn" /> :
     (<>
-      {currentUser.photoUrl && <img src={currentUser.photoUrl}/>}
-      <h3>Welcome back, {user.email}</h3>
+      {imageUrl && <img src={imageUrl} style={{
+        maxWidth: "150px",
+        maxHeight: "150px"
+      }}/>}
+      <h3>Welcome back, {email}</h3>
       <p>{error}</p>
+      <Button onClick={() => navigate("/updateProfile")}>Update Profile</Button>
       <Button onClick={handleLogout}>Log Out</Button>
     </>)
   )

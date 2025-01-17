@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { auth, storage } from '../firebase'
 import { updateProfile } from 'firebase/auth'
+import { Navigate } from 'react-router'
 
 export default function Welcome() {
     const [profileImage, setProfileImage] = useState(null)
@@ -71,7 +72,8 @@ export default function Welcome() {
     }
 
   return (
-    <>
+    user ? <Navigate to="/signIn" /> :
+    (<>
         <h2>Welcome to app!</h2>
         <img src={imageUrl} />
         <Form onSubmit={handleSubmit}>
@@ -89,10 +91,10 @@ export default function Welcome() {
                 value={username}
                 onChange={e => setUsername(e.target.value)}/>
             </Form.Group>
-            <Button type="submit">Upload Image</Button>
+            <Button type="submit">Submit</Button>
         </Form>
         {progress && <p>Uploading progress: {progress}%</p>}
         <p>{error}</p>
-    </>
+    </>)
   )
 }

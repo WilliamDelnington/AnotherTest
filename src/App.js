@@ -8,7 +8,7 @@ import ReactLogo from "./media/React-icon.png"
 import SideBar from './components/sidebar';
 import { Route, Routes } from 'react-router';
 import SignIn from './Authentication/SignIn'
-import SignUp from './Authentication/SignIn';
+import SignUp from './Authentication/SignUp';
 import Profile from './Authentication/Profile';
 import UpdateProfile from './Authentication/UpdateProfile';
 import Welcome from './Authentication/Welcome';

@@ -25,7 +25,6 @@ export default function SideBar() {
             <SidebarItem icon={
                 (<FontAwesomeIcon icon={faStar}/>)
             } label={"Starred"}/>
-            <SidebarItem icon={} />
             <hr />
 
         </div>

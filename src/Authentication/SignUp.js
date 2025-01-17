@@ -3,7 +3,7 @@ import React from 'react'
 import { useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { auth } from '../firebase'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
 export default function SignUp() {
     const [email, setEmail] = useState("")
@@ -14,21 +14,23 @@ export default function SignUp() {
 
     const navigate = useNavigate()
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
         e.preventDefault()
 
         setError("")
-
+        setLoading(true)
         if (password !== retypePassword) {
             setError("Passwords do not match.")
             return
         }
         try {
-            checkEmailExists(email)
-            handleSignup(email, password)
+            await checkEmailExists(email)
+            await handleSignup(email, password)
         } catch (err) {
-            setError(err)
+            setError(err.message)
             return
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -40,7 +42,7 @@ export default function SignUp() {
             navigate("/welcome")
         }
         catch (e) {
-            setError(`An error signing up: ${e}`)
+            setError(`An error signing up: ${e.message}`)
         }
         finally {
             setLoading(false)
@@ -56,7 +58,7 @@ export default function SignUp() {
                 throw new Error("Email is already used.")
             }
         } catch (e) {
-            throw new Error(`An error occured: ${e}`)
+            throw new Error(`An error occured: ${e.message}`)
         } finally {
             setLoading(false)
         }
@@ -90,6 +92,7 @@ export default function SignUp() {
             <p>{error}</p>
             {loading && <p>Signing Up...</p>}
             <Button type="submit">Sign Up</Button>
+            <p>Already have an account? <Link to={"/signIn"}>Sign In</Link></p>
         </Form>
     </>
   )

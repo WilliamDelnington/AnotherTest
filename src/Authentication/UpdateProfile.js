@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { auth, storage } from '../firebase'
 import { Navigate, useNavigate } from 'react-router'
 import { Button, Form } from 'react-bootstrap'
-import { updateEmail, updatePassword, updateProfile } from 'firebase/auth'
+import { onAuthStateChanged, updateEmail, updatePassword, updateProfile } from 'firebase/auth'
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
 
 export default function UpdateProfile() {
@@ -10,14 +10,44 @@ export default function UpdateProfile() {
     const [password, setPassword] = useState("")
     const [retypePassword, setRetypePassword] = useState("")
     const [profileImage, setProfileImage] = useState(null)
+    const [imageUrl, setImageUrl] = useState("")
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
+    const [progress, setProgress] = useState(0)
+    const [user, setUser] = useState(null)
 
-    const user = auth.currentUser
     const navigate = useNavigate()
 
+    useEffect(() => {
+        const unsucsribe = onAuthStateChanged(auth, curUser => {
+            setUser(user)
+        })
+
+        return () => unsucsribe()
+    }, [])
+
+    useEffect(() => {
+        if (!user.photoURL) {
+            const defaultImageRef = ref(storage, "/profileImages/default.jpg")
+            getDownloadURL(defaultImageRef).then((downloadURL) => {
+                setImageUrl(downloadURL)
+            }).catch(err => {
+                setError("An error getting image: " + err.message)
+                return
+            })
+        } else {
+            console.log(user.photoURL)
+            setImageUrl(user.photoURL)
+        }
+    }, [])
+
     function handleFileChange(e) {
-        setProfileImage(e.target.files[0])
+        const file = e.target.files[0]
+        if (file) {
+            setProfileImage(e.target.files[0])
+
+            setImageUrl(URL.createObjectURL(file))
+        }
     }
 
     async function updateUserProfile(e) {
@@ -31,11 +61,12 @@ export default function UpdateProfile() {
 
         try {
             if (profileImage) {
-                const storageRef = ref(storage, "profileImages/")
+                const storageRef = ref(storage, "/profileImages/")
                 const uploadTask = uploadBytesResumable(storageRef, profileImage)
 
                 uploadTask.on("state_changed", (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                    const uploadProgress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                    setProgress(uploadProgress)
 
                 }, (error) => {
                     setError("An error uploading image: " + error.message)
@@ -72,9 +103,11 @@ export default function UpdateProfile() {
     }
 
   return (
-    user ? <Navigate to="/login" /> :
+    !user ? <Navigate to="/signIn" /> :
     (<>
-      <Form onSubmit={updateProfile}>
+        <h3>Update Profile</h3>
+        {imageUrl && <img src={imageUrl} style={{maxWidth: "200px", maxHeight: "200px"}}/>}
+      <Form onSubmit={updateUserProfile}>
         <Form.Group>
             <Form.Label>Update Avatar:</Form.Label>
             <Form.Control 
@@ -107,6 +140,7 @@ export default function UpdateProfile() {
       </Form>
       <p>{error}</p>
       {loading && <p>Updating Profile...</p>}
+      {progress && <p>Uploading progress: {progress}%</p>}
     </>)
   )
 }

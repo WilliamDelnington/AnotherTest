@@ -3,9 +3,9 @@ import React from 'react'
 import { useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { auth } from '../firebase'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
-export default function SignUp() {
+export default function SignIn() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
@@ -13,30 +13,24 @@ export default function SignUp() {
 
     const navigate = useNavigate()
 
-    function handleSubmit(e) {
-        e.preventDefault()
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setError("");
+        setLoading(true);
         try {
-            checkEmailExists(email)
-            handleSignin(email, password)
+            await handleSignin(email, password);
+            navigate("/profile"); // Navigate only after successful sign-in
         } catch (err) {
-            setError(err)
-            return
+            setError(err.message);
+            return // Ensure `handleSignin` throws meaningful errors
+        } finally {
+            setLoading(false);
         }
     }
-
+    
     async function handleSignin(email, password) {
-        setError("")
-        setLoading(true)
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password)
-            navigate("/profile")
-        }
-        catch (e) {
-            setError(`An error signing in: ${e}`)
-        }
-        finally {
-            setLoading(false)
-        }
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        return userCredential.user; // Return user for further processing if needed
     }
 
     async function checkEmailExists(email) {
@@ -48,7 +42,7 @@ export default function SignUp() {
                 throw new Error("Email is not registered.")
             }
         } catch (e) {
-            throw new Error(`An error occured: ${e}`)
+            throw new Error(`An error occured: ${e.message}`)
         } finally {
             setLoading(false)
         }
@@ -75,7 +69,8 @@ export default function SignUp() {
             <p>{error}</p>
             {loading && <p>Signing In...</p>}
             <Button type="submit">Sign In</Button>
-        </Form>
+            <p>Don't have an account? <Link to={"/signUp"}>Sign Up</Link></p>
+        </Form> 
     </>
   )
 }
