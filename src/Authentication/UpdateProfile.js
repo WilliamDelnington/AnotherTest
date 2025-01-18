@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { auth, storage } from '../firebase'
 import { Navigate, useNavigate } from 'react-router'
-import { Button, Form } from 'react-bootstrap'
+import { Button, Form, Image } from 'react-bootstrap'
 import { onAuthStateChanged, updateEmail, updatePassword, updateProfile } from 'firebase/auth'
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
 
@@ -12,7 +12,8 @@ export default function UpdateProfile() {
     const [profileImage, setProfileImage] = useState(null)
     const [imageUrl, setImageUrl] = useState("")
     const [error, setError] = useState("")
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [uploadLoading, setUploadLoading] = useState(false)
     const [progress, setProgress] = useState(0)
     const [user, setUser] = useState(null)
 
@@ -20,26 +21,28 @@ export default function UpdateProfile() {
 
     useEffect(() => {
         const unsucsribe = onAuthStateChanged(auth, curUser => {
-            setUser(user)
+            setUser(curUser)
+            setLoading(false)
         })
 
         return () => unsucsribe()
     }, [])
 
     useEffect(() => {
-        if (!user.photoURL) {
-            const defaultImageRef = ref(storage, "/profileImages/default.jpg")
-            getDownloadURL(defaultImageRef).then((downloadURL) => {
-                setImageUrl(downloadURL)
-            }).catch(err => {
-                setError("An error getting image: " + err.message)
-                return
-            })
-        } else {
-            console.log(user.photoURL)
-            setImageUrl(user.photoURL)
+        if (user) {
+            if (!user.photoURL) {
+                const defaultImageRef = ref(storage, "/profileImages/default.jpg")
+                getDownloadURL(defaultImageRef).then((downloadURL) => {
+                    setImageUrl(downloadURL)
+                }).catch(err => {
+                    setError("An error getting image: " + err.message)
+                    return
+                })
+            } else {
+                setImageUrl(user.photoURL)
+            }
         }
-    }, [])
+    }, [user])
 
     function handleFileChange(e) {
         const file = e.target.files[0]
@@ -53,7 +56,7 @@ export default function UpdateProfile() {
     async function updateUserProfile(e) {
         e.preventDefault()
         setError("")
-        setLoading(true)
+        setUploadLoading(true)
         if (password !== retypePassword) {
             setError("Passwords do not match.")
             return
@@ -61,7 +64,7 @@ export default function UpdateProfile() {
 
         try {
             if (profileImage) {
-                const storageRef = ref(storage, "/profileImages/")
+                const storageRef = ref(storage, `profileImages/${user.uid}.jpg`)
                 const uploadTask = uploadBytesResumable(storageRef, profileImage)
 
                 uploadTask.on("state_changed", (snapshot) => {
@@ -97,16 +100,22 @@ export default function UpdateProfile() {
             setError("An error occurred while updating profile: " + e.message)
         }
         finally {
-            setLoading(false)
-            navigate("/profile")
+            setUploadLoading(false)
+            navigate("/")
         }
+    }
+
+    if (loading) {
+        return <h3>Loading...</h3>
     }
 
   return (
     !user ? <Navigate to="/signIn" /> :
     (<>
         <h3>Update Profile</h3>
-        {imageUrl && <img src={imageUrl} style={{maxWidth: "200px", maxHeight: "200px"}}/>}
+        {imageUrl && <Image src={imageUrl} style={{
+            width: "150px", height: "150px"
+        }} roundedCircle/>}
       <Form onSubmit={updateUserProfile}>
         <Form.Group>
             <Form.Label>Update Avatar:</Form.Label>
@@ -139,8 +148,8 @@ export default function UpdateProfile() {
         <Button type='submit'>Update Profile</Button>
       </Form>
       <p>{error}</p>
-      {loading && <p>Updating Profile...</p>}
-      {progress && <p>Uploading progress: {progress}%</p>}
+      {uploadLoading && <p>Updating Profile...</p>}
+      {progress !=0 && <p>Uploading progress: {progress}%</p>}
     </>)
   )
 }

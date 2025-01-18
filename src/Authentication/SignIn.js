@@ -1,15 +1,16 @@
-import { fetchSignInMethodsForEmail, signInWithEmailAndPassword } from 'firebase/auth'
 import React from 'react'
 import { useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
-import { auth } from '../firebase'
 import { Link, useNavigate } from 'react-router'
+import { useAuth } from '../Contexts/useContext'
 
 export default function SignIn() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
+
+    const { signin, checkEmailRegistered } = useAuth()
 
     const navigate = useNavigate()
 
@@ -19,7 +20,7 @@ export default function SignIn() {
         setLoading(true);
         try {
             await handleSignin(email, password);
-            navigate("/profile"); // Navigate only after successful sign-in
+            navigate("/"); // Navigate only after successful sign-in
         } catch (err) {
             setError(err.message);
             return // Ensure `handleSignin` throws meaningful errors
@@ -29,7 +30,7 @@ export default function SignIn() {
     }
     
     async function handleSignin(email, password) {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signin(email, password);
         return userCredential.user; // Return user for further processing if needed
     }
 
@@ -37,7 +38,7 @@ export default function SignIn() {
         setError("")
         setLoading(true)
         try {
-            const methods = await fetchSignInMethodsForEmail(auth, email)
+            const methods = await checkEmailRegistered(email)
             if (methods.length == 0) {
                 throw new Error("Email is not registered.")
             }

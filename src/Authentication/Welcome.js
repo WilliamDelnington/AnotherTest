@@ -2,8 +2,8 @@ import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
 import React, { useEffect, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { auth, storage } from '../firebase'
-import { updateProfile } from 'firebase/auth'
-import { Navigate } from 'react-router'
+import { onAuthStateChanged, updateProfile } from 'firebase/auth'
+import { Navigate, useNavigate } from 'react-router'
 
 export default function Welcome() {
     const [profileImage, setProfileImage] = useState(null)
@@ -11,8 +11,10 @@ export default function Welcome() {
     const [error, setError] = useState("")
     const [username, setUsername] = useState("")
     const [progress, setProgress] = useState(0)
+    const [user, setUser] = useState(null)
+    const [loading, setLoading] = useState(true)
 
-    const user = auth.currentUser
+    const naivgate = useNavigate()
 
     function handleUpload(e) {
         const file = e.target.files[0]
@@ -22,8 +24,16 @@ export default function Welcome() {
             const previerUrl = URL.createObjectURL(file)
             setImageUrl(previerUrl)
         }
-        
     }
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, curUser => {
+            setUser(curUser)
+            setLoading(false)
+        })
+
+        return () => unsubscribe()
+    })
 
     useEffect(() => {
         const defaultStorageRef = ref(storage, "/profileImages/default.jpg")
@@ -40,7 +50,7 @@ export default function Welcome() {
         setError("")
         setProgress(0)
 
-        const storageRef = ref(storage, "/profileImages")
+        const storageRef = ref(storage, "profileImages")
         if (profileImage) {
             const uploadTask = uploadBytesResumable(storageRef, profileImage)
 
@@ -69,10 +79,16 @@ export default function Welcome() {
             setError("An error updating profile: " + error.message)
             return
         })
+
+        naivgate("/")
+    }
+
+    if (loading) {
+        return <h3>Loading...</h3>
     }
 
   return (
-    user ? <Navigate to="/signIn" /> :
+    !user ? <Navigate to="/signIn" /> :
     (<>
         <h2>Welcome to app!</h2>
         <img src={imageUrl} />
@@ -93,7 +109,7 @@ export default function Welcome() {
             </Form.Group>
             <Button type="submit">Submit</Button>
         </Form>
-        {progress && <p>Uploading progress: {progress}%</p>}
+        {progress != 0 && <p>Uploading progress: {progress}%</p>}
         <p>{error}</p>
     </>)
   )

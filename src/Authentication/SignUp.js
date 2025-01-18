@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { auth } from '../firebase'
 import { Link, useNavigate } from 'react-router'
+import { useAuth } from '../Contexts/useContext'
 
 export default function SignUp() {
     const [email, setEmail] = useState("")
@@ -11,6 +12,8 @@ export default function SignUp() {
     const [retypePassword, setRetypePassword] = useState("")
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
+
+    const { signup, checkEmailRegistered } = useAuth()
 
     const navigate = useNavigate()
 
@@ -21,6 +24,7 @@ export default function SignUp() {
         setLoading(true)
         if (password !== retypePassword) {
             setError("Passwords do not match.")
+            setLoading(false)
             return
         }
         try {
@@ -38,7 +42,7 @@ export default function SignUp() {
         setError("")
         setLoading(true)
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+            const userCredential = await signup(email, password)
             navigate("/welcome")
         }
         catch (e) {
@@ -53,7 +57,7 @@ export default function SignUp() {
         setError("")
         setLoading(true)
         try {
-            const methods = await fetchSignInMethodsForEmail(auth, email)
+            const methods = await checkEmailRegistered(email)
             if (methods.length > 0) {
                 throw new Error("Email is already used.")
             }
