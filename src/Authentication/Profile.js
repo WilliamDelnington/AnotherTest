@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { storage } from '../firebase'
 import { Button, Image } from 'react-bootstrap'
-import { Navigate, useNavigate } from 'react-router'
+import { Link, Navigate, useNavigate } from 'react-router'
 import { getDownloadURL, ref } from 'firebase/storage'
 import Folder from '../components/Folder'
 import FolderUploadButton from '../components/FolderUploadButton'
@@ -15,9 +15,6 @@ export default function Profile() {
     const [imageUrl, setImageUrl] = useState("")
 
     const { user, logout } = useAuth()
-
-    const state = useFolder()
-
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -53,6 +50,9 @@ export default function Profile() {
       }} roundedCircle/>}
       <h3>Welcome back, {user.displayname ? user.displayname : user.uid}</h3>
       <p>{error}</p>
+
+      <Button as={Link} to={`/user/${user.uid}`}>My Drive</Button>
+
       <Button onClick={() => navigate("/updateProfile")}>Update Profile</Button>
       <Button onClick={handleLogout}>Log Out</Button>
     </>)

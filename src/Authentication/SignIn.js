@@ -21,7 +21,7 @@ export default function SignIn() {
         try {
             await checkEmailExists(email)
             await handleSignin(email, password);
-            navigate("/"); // Navigate only after successful sign-in
+            navigate("/profile"); // Navigate only after successful sign-in
         } catch (err) {
             setError(err.message);
             return // Ensure `handleSignin` throws meaningful errors

@@ -45,8 +45,8 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<DashBoard />}/>
-            <Route path="/folder/:folderId" element={<DashBoard />} />
+            <Route path="/user/:userId" element={<DashBoard />}/>
+            <Route path="/user/:userId/folder/:folderId" element={<DashBoard />} />
 
             <Route path="/signin" element={<SignIn />}/>
             <Route path="/signup" element={<SignUp />}/>

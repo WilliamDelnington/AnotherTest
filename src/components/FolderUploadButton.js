@@ -57,7 +57,11 @@ export default function FolderUploadButton({ folder }) {
 
   return (
     <>
-        <Button variant='outline-success' size="sm" onClick={openModal}>
+        <Button onClick={openModal} style={{
+            border: '1px solid black',
+            padding: '5px',
+            margin: '5px'
+        }}>
             <FontAwesomeIcon icon={faFolderPlus}/>
         </Button>
         <Modal show={isModalOpen} onHide={closeModal}>

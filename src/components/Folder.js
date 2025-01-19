@@ -4,10 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router'
 
-export default function Folder({ folder }) {
+export default function Folder({ folder, userId }) {
   const navigate = useNavigate()
   function toFolder() {
-    navigate(`/folder/${folder.id}`, { state: { folder: folder }})
+    navigate(`/user/${userId}/folder/${folder.id}`, { state: { folder: folder }})
   }
 
   return (

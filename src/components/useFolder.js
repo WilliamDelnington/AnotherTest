@@ -12,9 +12,7 @@ const ACTIONS = {
 
 export const ROOT_FOLDER = {name: "root", id: null, path: []}
 
-export function useFolder(folderId = null, folder = null) {
-    const { user } = useAuth()
-
+export function useFolder(userId, folderId = null, folder = null) {
     const [state, dispatch] = useReducer(reducer, {
         folderId,
         folder,
@@ -33,7 +31,6 @@ export function useFolder(folderId = null, folder = null) {
     }, [folderId, folder])
 
     useEffect(() => {
-
         if (folderId == null) {
             return dispatch({
                 type: ACTIONS.UPDATE_FOLDER,
@@ -59,45 +56,53 @@ export function useFolder(folderId = null, folder = null) {
         const folderCollection = collection(firestore, "folders")
 
         const cleanup = () => {
-            if (user != null) {
-                const temp = folderId
-                console.log(folderId)
-                if (temp !== ori) {
-                    window.location.reload()
-                }
-                const q = query(folderCollection,
-                    where("parentId", "==", folderId),
-                    where("userId", "==", user.uid)
-                )
-
-                getDocs(q).then(data => {
-                    console.log(data.docs.map(d => {
-                        return {...d.data(), id: d.id}
-                    }))
-                    dispatch({
-                        type: ACTIONS.SET_CHILD_FOLDERS,
-                        payload: { childFolders: data.docs.map(d => {
-                            return {...d.data(), id: d.id}
-                        })}
-                    })
-                })
+            const temp = folderId
+            console.log(folderId)
+            if (temp !== ori) {
+                window.location.reload()
             }
+            const q = query(folderCollection,
+                where("parentId", "==", folderId),
+                where("userId", "==", userId)
+            )
+
+            getDocs(q).then(data => {
+                console.log(data.docs.map(d => {
+                    return {...d.data(), id: d.id}
+                }))
+                dispatch({
+                    type: ACTIONS.SET_CHILD_FOLDERS,
+                    payload: { childFolders: data.docs.map(d => {
+                        return {...d.data(), id: d.id}
+                    })}
+                })
+            })
         }
         
         return () => cleanup()
-    }, [folderId, user])
+    }, [folderId, userId])
 
     useEffect(() => {
         const fileCollection = collection(firestore, "files")
 
         const cleanup = () => {
-            if (user != null) {
-                const q = query(fileCollection, 
-                    where("")
-                )
-            }
+            const q = query(fileCollection, 
+                where("folderId", "==", folderId),
+                where("userId", "==", userId)
+            )
+
+            getDocs(q).then(data => {
+                dispatch({
+                    type: ACTIONS.SET_CHILD_FILES,
+                    payload: { childFiles: data.docs.map(d => {
+                        return {...d.data(), id: d.id}
+                    })}
+                })
+            })
         }
-    }, [folderId, user])
+
+        return () => cleanup()
+    }, [folderId, userId])
 
     return state
 }
