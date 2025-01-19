@@ -1,4 +1,14 @@
-import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, updateEmail, updatePassword, updateProfile } from "firebase/auth"
+import { 
+    createUserWithEmailAndPassword, 
+    fetchSignInMethodsForEmail, 
+    onAuthStateChanged, 
+    sendPasswordResetEmail, 
+    signInWithEmailAndPassword, 
+    signOut, 
+    updateEmail,
+    updatePassword, 
+    updateProfile
+} from "firebase/auth"
 import React, { useContext, useEffect, useState } from "react"
 import { auth } from "../firebase"
 

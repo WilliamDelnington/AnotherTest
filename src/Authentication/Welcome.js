@@ -2,8 +2,8 @@ import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
 import React, { useEffect, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { auth, storage } from '../firebase'
-import { onAuthStateChanged, updateProfile } from 'firebase/auth'
 import { Navigate, useNavigate } from 'react-router'
+import { useAuth } from '../Contexts/useContext'
 
 export default function Welcome() {
     const [profileImage, setProfileImage] = useState(null)
@@ -11,8 +11,8 @@ export default function Welcome() {
     const [error, setError] = useState("")
     const [username, setUsername] = useState("")
     const [progress, setProgress] = useState(0)
-    const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(true)
+
+    const { user, updateUsername, updateProfileImage } = useAuth()
 
     const naivgate = useNavigate()
 
@@ -25,15 +25,6 @@ export default function Welcome() {
             setImageUrl(previerUrl)
         }
     }
-
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, curUser => {
-            setUser(curUser)
-            setLoading(false)
-        })
-
-        return () => unsubscribe()
-    })
 
     useEffect(() => {
         const defaultStorageRef = ref(storage, "/profileImages/default.jpg")
@@ -64,7 +55,7 @@ export default function Welcome() {
                 },
                 () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        updateProfile(user, {photoURL: downloadURL}).then(() => {})
+                        updateProfileImage(downloadURL).then(() => {})
                         .catch((error) => {
                             setError("An error updating profile: " + error.message)
                             return
@@ -74,17 +65,13 @@ export default function Welcome() {
             )
         }
 
-        updateProfile(user, {displayName: username}).then(() => {})
+        updateUsername(username).then(() => {})
         .catch((error) => {
             setError("An error updating profile: " + error.message)
             return
         })
 
         naivgate("/")
-    }
-
-    if (loading) {
-        return <h3>Loading...</h3>
     }
 
   return (

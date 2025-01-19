@@ -19,6 +19,7 @@ export default function SignIn() {
         setError("");
         setLoading(true);
         try {
+            await checkEmailExists(email)
             await handleSignin(email, password);
             navigate("/"); // Navigate only after successful sign-in
         } catch (err) {

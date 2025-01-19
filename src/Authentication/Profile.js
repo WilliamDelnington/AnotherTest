@@ -1,34 +1,24 @@
-import { onAuthStateChanged, signOut } from 'firebase/auth'
 import React, { useEffect, useState } from 'react'
-import { auth, storage } from '../firebase'
+import { storage } from '../firebase'
 import { Button, Image } from 'react-bootstrap'
-import { Link, Navigate, useNavigate } from 'react-router'
+import { Navigate, useNavigate } from 'react-router'
 import { getDownloadURL, ref } from 'firebase/storage'
 import Folder from '../components/Folder'
 import FolderUploadButton from '../components/FolderUploadButton'
 import FileUploadButton from '../components/FileUploadButton'
 import File from '../components/File'
 import { useFolder } from '../components/useFolder'
+import { useAuth } from '../Contexts/useContext'
 
 export default function Profile() {
     const [error, setError] = useState("")
     const [imageUrl, setImageUrl] = useState("")
-    const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(true)
+
+    const { user, logout } = useAuth()
 
     const state = useFolder()
-    console.log(state.childFolders)
 
     const navigate = useNavigate()
-
-    useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, user => {
-        setUser(user)
-        setLoading(false)
-      })
-
-      return () => unsubscribe()
-    }, [])
 
     useEffect(() => {
       if (user) {
@@ -46,16 +36,12 @@ export default function Profile() {
     async function handleLogout(e) {
         e.preventDefault()
         try {
-            await signOut(auth)
+            await logout()
             navigate("/signIn")
         }
         catch (err) {
             setError("An error logging out: " + err.message)
         }
-    }
-
-    if (loading) {
-      return <h3>Loading...</h3>
     }
 
   return (
@@ -69,8 +55,6 @@ export default function Profile() {
       <p>{error}</p>
       <Button onClick={() => navigate("/updateProfile")}>Update Profile</Button>
       <Button onClick={handleLogout}>Log Out</Button>
-      <Folder folderId={null} folderName={"New Folder"}/>
-      <FolderUploadButton folder={state.folder} />
     </>)
   )
 }

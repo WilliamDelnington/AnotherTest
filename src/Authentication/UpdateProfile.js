@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { auth, storage } from '../firebase'
+import { storage } from '../firebase'
 import { Navigate, useNavigate } from 'react-router'
 import { Button, Form, Image } from 'react-bootstrap'
-import { onAuthStateChanged, updateEmail, updatePassword, updateProfile } from 'firebase/auth'
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
+import { useAuth } from '../Contexts/useContext'
 
 export default function UpdateProfile() {
     const [email, setEmail] = useState("")
@@ -11,22 +11,21 @@ export default function UpdateProfile() {
     const [retypePassword, setRetypePassword] = useState("")
     const [profileImage, setProfileImage] = useState(null)
     const [imageUrl, setImageUrl] = useState("")
+    const [username, setUsername] = useState("")
     const [error, setError] = useState("")
-    const [loading, setLoading] = useState(true)
     const [uploadLoading, setUploadLoading] = useState(false)
     const [progress, setProgress] = useState(0)
-    const [user, setUser] = useState(null)
 
     const navigate = useNavigate()
+    const { 
+        user,
+        updateUserEmail, 
+        updateUserPassword,
+        updateUsername, 
+        updateProfileImage,
+        checkEmailRegistered, 
+    } = useAuth()
 
-    useEffect(() => {
-        const unsucsribe = onAuthStateChanged(auth, curUser => {
-            setUser(curUser)
-            setLoading(false)
-        })
-
-        return () => unsucsribe()
-    }, [])
 
     useEffect(() => {
         if (user) {
@@ -41,6 +40,12 @@ export default function UpdateProfile() {
             } else {
                 setImageUrl(user.photoURL)
             }
+        }
+    }, [user])
+
+    useEffect(() => {
+        if (user) {
+            setUsername(user.displayName)
         }
     }, [user])
 
@@ -75,7 +80,7 @@ export default function UpdateProfile() {
                     setError("An error uploading image: " + error.message)
                 }, () => {
                     getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        updateProfile(user, { photoURL: downloadURL }).then(() => {})
+                        updateProfileImage(downloadURL).then(() => {})
                         .catch(err => {
                             setError("An error uploading image: " + err.message)
                         })
@@ -83,17 +88,21 @@ export default function UpdateProfile() {
                 })
             }
 
+            if (username) {
+                await updateUsername(username)
+            }
+
             if (email && password) {
-                await updateEmail(user, email)
-                await updatePassword(user, password)
+                await updateUserEmail(email)
+                await updateUserPassword(password)
             }
 
             if (email && email !== user.email) {
-                await updateEmail(user, email)
+                await updateUserEmail(email)
             }
 
             if (password) {
-                await updatePassword(user, password)
+                await updateUserPassword(password)
             }
         }
         catch (e) {
@@ -103,10 +112,6 @@ export default function UpdateProfile() {
             setUploadLoading(false)
             navigate("/")
         }
-    }
-
-    if (loading) {
-        return <h3>Loading...</h3>
     }
 
   return (
@@ -123,6 +128,13 @@ export default function UpdateProfile() {
             type="file"
             onChange={handleFileChange}
             />
+        </Form.Group>
+        <Form.Group>
+            <Form.Label>Update Username:</Form.Label>
+            <Form.Control
+            type="text"
+            value={username}
+            onChange={e => setUsername(e.target.value)}></Form.Control>
         </Form.Group>
         <Form.Group>
             <Form.Label>Email</Form.Label>

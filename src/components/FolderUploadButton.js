@@ -24,9 +24,6 @@ export default function FolderUploadButton({ folder }) {
     async function handleSubmit(e) {
         e.preventDefault()
 
-        setFolderName("")
-        closeModal()
-
         try {
             if (folder == null) return
             const path = [...folder.path]
@@ -52,6 +49,9 @@ export default function FolderUploadButton({ folder }) {
         }
         catch (error) {
             console.log(error)
+        } finally {
+            setFolderName("")
+            closeModal()
         }
     }
 

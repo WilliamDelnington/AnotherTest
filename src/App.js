@@ -6,12 +6,14 @@ import { signInWithPopup, signOut } from 'firebase/auth';
 import { auth, provider } from './firebase';
 import ReactLogo from "./media/React-icon.png"
 import SideBar from './components/sidebar';
-import { Route, Routes } from 'react-router';
+import { BrowserRouter, Route, Routes, useParams } from 'react-router';
 import SignIn from './Authentication/SignIn'
 import SignUp from './Authentication/SignUp';
 import Profile from './Authentication/Profile';
 import UpdateProfile from './Authentication/UpdateProfile';
 import Welcome from './Authentication/Welcome';
+import { AuthProvider } from './Contexts/useContext';
+import DashBoard from './components/DashBoard';
 
 function App() {
   const [user, setUser] = useState();
@@ -40,13 +42,20 @@ function App() {
 
   return (
     <>
-      <Routes>
-        <Route path="/signin" element={<SignIn />}/>
-        <Route path="/signup" element={<SignUp />}/>
-        <Route path="/" element={<Profile />}/>
-        <Route path="/updateProfile" element={<UpdateProfile />}/>
-        <Route path="/welcome" element={<Welcome />}/>
-      </Routes>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<DashBoard />}/>
+            <Route path="/folder/:folderId" element={<DashBoard />} />
+
+            <Route path="/signin" element={<SignIn />}/>
+            <Route path="/signup" element={<SignUp />}/>
+            <Route path="/profile" element={<Profile />}/>
+            <Route path="/updateProfile" element={<UpdateProfile />}/>
+            <Route path="/welcome" element={<Welcome />}/>
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </>
   );
 }
