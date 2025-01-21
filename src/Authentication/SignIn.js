@@ -19,7 +19,6 @@ export default function SignIn() {
         setError("");
         setLoading(true);
         try {
-            await checkEmailExists(email)
             await handleSignin(email, password);
             navigate("/profile"); // Navigate only after successful sign-in
         } catch (err) {
@@ -33,21 +32,6 @@ export default function SignIn() {
     async function handleSignin(email, password) {
         const userCredential = await signin(email, password);
         return userCredential.user; // Return user for further processing if needed
-    }
-
-    async function checkEmailExists(email) {
-        setError("")
-        setLoading(true)
-        try {
-            const methods = await checkEmailRegistered(email)
-            if (methods.length == 0) {
-                throw new Error("Email is not registered.")
-            }
-        } catch (e) {
-            throw new Error(`An error occured: ${e.message}`)
-        } finally {
-            setLoading(false)
-        }
     }
 
   return (

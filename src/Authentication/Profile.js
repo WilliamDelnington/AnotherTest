@@ -3,11 +3,6 @@ import { storage } from '../firebase'
 import { Button, Image } from 'react-bootstrap'
 import { Link, Navigate, useNavigate } from 'react-router'
 import { getDownloadURL, ref } from 'firebase/storage'
-import Folder from '../components/Folder'
-import FolderUploadButton from '../components/FolderUploadButton'
-import FileUploadButton from '../components/FileUploadButton'
-import File from '../components/File'
-import { useFolder } from '../components/useFolder'
 import { useAuth } from '../Contexts/useContext'
 
 export default function Profile() {

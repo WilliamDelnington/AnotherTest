@@ -1,8 +1,6 @@
-import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from 'firebase/auth'
 import React from 'react'
 import { useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
-import { auth } from '../firebase'
 import { Link, useNavigate } from 'react-router'
 import { useAuth } from '../Contexts/useContext'
 

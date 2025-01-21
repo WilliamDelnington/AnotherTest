@@ -22,7 +22,7 @@ export default function DashBoard() {
         <AppNavbar />
         <Container fluid>
           {/* Allow upload file and add folder if the authed user's id matches userId */}
-            {userId === user.uid ? (<>
+            {userId === user?.uid ? (<>
             <FolderUploadButton folder={curState.folder}/>
             <FileUploadButton folder={curState.folder} />
             </>) : <div></div>}

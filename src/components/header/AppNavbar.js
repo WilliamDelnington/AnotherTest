@@ -9,7 +9,7 @@ export default function AppNavbar() {
   return (
     <Navbar bg="light" expanded="sm">
       <NavbarBrand as={Link} to={"/"}>
-        Drive
+        App
       </NavbarBrand>
       {!user ? (
         <Nav>
