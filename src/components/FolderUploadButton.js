@@ -9,7 +9,6 @@ import { ROOT_FOLDER } from './useFolder'
 export default function FolderUploadButton({ folder }) {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [folderName, setFolderName] = useState("")
-    const [error, setError] = useState("")
     
     const user = auth.currentUser
 

@@ -73,7 +73,33 @@ export function useProfile(userId) {
     }, [userId])
 
     useEffect(() => {
-        
+        const folderBookmarksCollection = collection(firestore, "folderBookmarks")
+        const foldersCollection = collection(firestore, "folders")
+
+        const cleanup = () => {
+            const q = query(folderBookmarksCollection, 
+                where("userId", "==", userId)
+            )
+
+            getDocs(q).then(data => {
+                dispatch({
+                    type: ACTIONS.SET_BOOKMARK_FOLDERS,
+                    payload: { folderBookmarks: data.docs.map(d => {
+                        getDoc(doc(foldersCollection, d.folderId)).then(dt => {
+                            return {...dt.data(), id: dt.id}
+                        })
+                    })}
+                })
+            }).catch(err => {
+                console.error(err)
+                dispatch({
+                    type: ACTIONS.SET_BOOKMARK_FILES,
+                    payload: { folderBookmarks: [] }
+                })
+            })
+        }
+
+        return () => cleanup()
     }, [userId])
 
     return state

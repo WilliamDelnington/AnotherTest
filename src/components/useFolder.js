@@ -1,13 +1,13 @@
 import { useEffect, useReducer } from "react";
 import { firestore } from "../firebase";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
-import { useAuth } from "../Contexts/useContext";
 
 const ACTIONS = {
     SELECT_FOLDER: "select-folder",
     UPDATE_FOLDER: "update-folder",
     SET_CHILD_FOLDERS: "set-child-folders",
     SET_CHILD_FILES: "set-child-files",
+    SET_IS_FOLDER_BOOKMARKED: "set-is-bookmarked",
 }
 
 export const ROOT_FOLDER = {name: "root", id: null, path: []}
@@ -18,6 +18,7 @@ export function useFolder(userId, folderId = null, folder = null) {
         folder,
         childFolders: [],
         childFiles: [],
+        isFolderBookmarked: false,
     })
 
     const ori = folderId
@@ -104,6 +105,33 @@ export function useFolder(userId, folderId = null, folder = null) {
         return () => cleanup()
     }, [folderId, userId])
 
+    useEffect(() => {
+        const folderBookmarksCollection = collection(firestore, "folderBookmarks")
+
+        const cleanup = () => {
+            const q = query(folderBookmarksCollection,
+                where("folderId", "==", folderId),
+                where("userId", "==", userId)
+            )
+
+            getDocs(q).then(docs => {
+                if (docs.empty) {
+                    dispatch({
+                        type: ACTIONS.SET_IS_FOLDER_BOOKMARKED,
+                        payload: { isFolderBookmarked: false}
+                    })
+                } else {
+                    dispatch({
+                        type: ACTIONS.SET_IS_FOLDER_BOOKMARKED,
+                        payload: { isFolderBookmarked: true}
+                    })
+                }
+            })
+        }
+
+        return () => cleanup()
+    }, [folderId, userId])
+
     return state
 }
 
@@ -119,17 +147,22 @@ function reducer(state, {type, payload}) {
         case ACTIONS.UPDATE_FOLDER:
             return {
                 ...state,
-                folder: payload.folder
+                folder: payload.folder,
             }
         case ACTIONS.SET_CHILD_FOLDERS:
             return {
                 ...state,
-                childFolders: payload.childFolders
+                childFolders: payload.childFolders,
             }
         case ACTIONS.SET_CHILD_FILES:
             return {
                 ...state,
                 childFiles: payload.childFiles,
+            }
+        case ACTIONS.SET_IS_FOLDER_BOOKMARKED:
+            return {
+                ...state,
+                isFolderBookmarked: payload.isFolderBookmarked,
             }
         default:
             return state
