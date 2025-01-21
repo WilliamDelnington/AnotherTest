@@ -43,7 +43,7 @@ export default function Profile() {
         width: "150px",
         height: "150px"
       }} roundedCircle/>}
-      <h3>Welcome back, {user.displayname ? user.displayname : user.uid}</h3>
+      <h3>Welcome back, {user.displayName ? user.displayName : user.uid}</h3>
       <p>{error}</p>
 
       <Button as={Link} to={`/user/${user.uid}`}>My Drive</Button>

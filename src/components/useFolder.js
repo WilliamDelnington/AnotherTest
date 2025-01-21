@@ -1,13 +1,13 @@
 import { useEffect, useReducer } from "react";
 import { firestore } from "../firebase";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { useAuth } from "../Contexts/useContext";
 
 const ACTIONS = {
     SELECT_FOLDER: "select-folder",
     UPDATE_FOLDER: "update-folder",
     SET_CHILD_FOLDERS: "set-child-folders",
     SET_CHILD_FILES: "set-child-files",
-    SET_IS_FOLDER_BOOKMARKED: "set-is-bookmarked",
 }
 
 export const ROOT_FOLDER = {name: "root", id: null, path: []}
@@ -18,11 +18,9 @@ export function useFolder(userId, folderId = null, folder = null) {
         folder,
         childFolders: [],
         childFiles: [],
-        isFolderBookmarked: false,
     })
 
-    const ori = folderId
-    console.log(ori)
+    const { user }= useAuth()
 
     useEffect(() => {
         dispatch({
@@ -57,26 +55,49 @@ export function useFolder(userId, folderId = null, folder = null) {
         const folderCollection = collection(firestore, "folders")
 
         const cleanup = () => {
-            const temp = folderId
-            console.log(folderId)
-            if (temp !== ori) {
-                window.location.reload()
-            }
             const q = query(folderCollection,
                 where("parentId", "==", folderId),
                 where("userId", "==", userId)
             )
 
             getDocs(q).then(data => {
-                console.log(data.docs.map(d => {
-                    return {...d.data(), id: d.id}
-                }))
-                dispatch({
-                    type: ACTIONS.SET_CHILD_FOLDERS,
-                    payload: { childFolders: data.docs.map(d => {
-                        return {...d.data(), id: d.id}
-                    })}
-                })
+                if (user) {
+                    const checkAllBookmarks = data.docs.map(async (d) => {
+                        const bookmarkDoc = doc(firestore, "folderBookmarks", d.id)
+
+                        try {
+                            const docSnapshot = await getDoc(bookmarkDoc)
+
+                            return {...d.data(), id: d.id, isBookmarked: docSnapshot.exists()}
+                        } catch (e) {
+                            console.error(e)
+
+                            return {...d.data(), id: d.id, isBookmarked: false}
+                        }
+                    })
+
+                    Promise.all(checkAllBookmarks).then(data => {
+                        console.log(data)
+                        dispatch({
+                            type: ACTIONS.SET_CHILD_FOLDERS,
+                            payload: { childFolders: data }
+                        })
+                    }).catch((e) => {
+                        console.error(e)
+                        dispatch({ 
+                            type: ACTIONS.SET_CHILD_FOLDERS,
+                            payload: { childFolders: [] }
+                        })
+                    })
+                }
+                else {
+                    dispatch({
+                        type: ACTIONS.SET_CHILD_FOLDERS,
+                        payload: { childFolders: data.docs.map(d => {
+                            return {...d.data(), id: d.id}
+                        })}
+                    })
+                }
             })
         }
         
@@ -93,37 +114,41 @@ export function useFolder(userId, folderId = null, folder = null) {
             )
 
             getDocs(q).then(data => {
-                dispatch({
-                    type: ACTIONS.SET_CHILD_FILES,
-                    payload: { childFiles: data.docs.map(d => {
-                        return {...d.data(), id: d.id}
-                    })}
-                })
-            })
-        }
+                if (user) {
+                    const checkAllBookmarks = data.docs.map(async (d) => {
+                        const bookmarkDoc = doc(firestore, "fileBookmarks", d.id)
 
-        return () => cleanup()
-    }, [folderId, userId])
+                        try {
+                            const docSnapshot = await getDoc(bookmarkDoc)
 
-    useEffect(() => {
-        const folderBookmarksCollection = collection(firestore, "folderBookmarks")
+                            return {...d.data(), id: d.id, isBookmarked: docSnapshot.exists()}
+                        } catch (e) {
+                            console.error(e)
 
-        const cleanup = () => {
-            const q = query(folderBookmarksCollection,
-                where("folderId", "==", folderId),
-                where("userId", "==", userId)
-            )
-
-            getDocs(q).then(docs => {
-                if (docs.empty) {
-                    dispatch({
-                        type: ACTIONS.SET_IS_FOLDER_BOOKMARKED,
-                        payload: { isFolderBookmarked: false}
+                            return {...d.data(), id: d.id, isBookmarked: false}
+                        }
                     })
-                } else {
+                    
+                    Promise.all(checkAllBookmarks).then(data => {
+                        console.log(data)
+                        dispatch({
+                            type: ACTIONS.SET_CHILD_FILES,
+                            payload: { childFiles: data }
+                        })
+                    }).catch((e) => {
+                        console.error(e)
+                        dispatch({ 
+                            type: ACTIONS.SET_CHILD_FILES,
+                            payload: { childFiles: [] }
+                        })
+                    })
+                }
+                else {
                     dispatch({
-                        type: ACTIONS.SET_IS_FOLDER_BOOKMARKED,
-                        payload: { isFolderBookmarked: true}
+                        type: ACTIONS.SET_CHILD_FILES,
+                        payload: { childFiles: data.docs.map(d => {
+                            return {...d.data(), id: d.id}
+                        })}
                     })
                 }
             })
@@ -158,11 +183,6 @@ function reducer(state, {type, payload}) {
             return {
                 ...state,
                 childFiles: payload.childFiles,
-            }
-        case ACTIONS.SET_IS_FOLDER_BOOKMARKED:
-            return {
-                ...state,
-                isFolderBookmarked: payload.isFolderBookmarked,
             }
         default:
             return state

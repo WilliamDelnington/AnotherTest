@@ -23,7 +23,6 @@ export default function UpdateProfile() {
         updateUserPassword,
         updateUsername, 
         updateProfileImage,
-        checkEmailRegistered, 
     } = useAuth()
 
 
@@ -110,7 +109,7 @@ export default function UpdateProfile() {
         }
         finally {
             setUploadLoading(false)
-            navigate("/")
+            navigate("/profile")
         }
     }
 

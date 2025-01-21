@@ -1,7 +1,7 @@
 import { faFileUpload } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
-import { Button, ProgressBar, Toast } from 'react-bootstrap'
+import { ProgressBar, Toast } from 'react-bootstrap'
 import { v4 as uuidv4 } from 'uuid'
 import { useAuth } from '../Contexts/useContext'
 import { addDoc, collection, getDocs, query, serverTimestamp, updateDoc, where } from 'firebase/firestore'
