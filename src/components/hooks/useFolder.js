@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from "react";
-import { firestore } from "../firebase";
+import { firestore } from "../../firebase";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
-import { useAuth } from "../Contexts/useContext";
+import { useAuth } from "../../Contexts/useContext";
 
 const ACTIONS = {
     SELECT_FOLDER: "select-folder",

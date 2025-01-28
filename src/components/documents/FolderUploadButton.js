@@ -2,9 +2,9 @@ import { faFolderPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
-import { auth, firestore } from '../firebase'
+import { auth, firestore } from '../../firebase'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
-import { ROOT_FOLDER } from './useFolder'
+import { ROOT_FOLDER } from '../hooks/useFolder'
 
 export default function FolderUploadButton({ folder }) {
     const [isModalOpen, setIsModalOpen] = useState(false)

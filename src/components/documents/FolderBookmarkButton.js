@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { useAuth } from '../Contexts/useContext'
+import { useAuth } from '../../Contexts/useContext'
 import { Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBookmark } from '@fortawesome/free-solid-svg-icons'
 import { deleteDoc, doc, serverTimestamp, setDoc } from 'firebase/firestore'
-import { firestore } from '../firebase'
+import { firestore } from '../../firebase'
 
 export default function FolderBookmarkButton({ folder }) {
     const [loading, setLoading] = useState(true)
@@ -21,7 +21,7 @@ export default function FolderBookmarkButton({ folder }) {
         e.preventDefault()
 
         setLoading(true)
-        const bookmarkDoc = doc(firestore, "folderBookmarks", folder.id)
+        const bookmarkDoc = doc(firestore, "folderBookmarks", folder.id + "-" + user.uid)
 
         setDoc(bookmarkDoc, {
             folderId: folder.id,
@@ -41,7 +41,7 @@ export default function FolderBookmarkButton({ folder }) {
         e.preventDefault()
 
         setLoading(true)
-        const bookmarkDoc = doc(firestore, "folderBookmarks", folder.id)
+        const bookmarkDoc = doc(firestore, "folderBookmarks", folder.id + "-" + user.uid)
 
         deleteDoc(bookmarkDoc).then(() => {
             console.log("Bookmark deleted")

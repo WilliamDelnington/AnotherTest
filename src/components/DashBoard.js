@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Container } from 'react-bootstrap'
-import FolderUploadButton from './FolderUploadButton'
-import { useFolder } from './useFolder'
+import FolderUploadButton from './documents/FolderUploadButton'
+import { useFolder } from './hooks/useFolder'
 import AppNavbar from './header/AppNavbar'
-import Folder from './Folder'
+import Folder from './documents/Folder'
 import { useLocation, useParams } from 'react-router'
-import FileUploadButton from './FileUploadButton'
-import File from './File'
+import FileUploadButton from './documents/FileUploadButton'
+import File from './documents/File'
 import { useAuth } from '../Contexts/useContext'
 
 export default function DashBoard() {

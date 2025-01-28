@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { deleteDoc, doc, serverTimestamp, setDoc } from 'firebase/firestore'
 import React, { useEffect, useState } from 'react'
 import { Button } from 'react-bootstrap'
-import { useAuth } from '../Contexts/useContext'
-import { firestore } from '../firebase'
+import { useAuth } from '../../Contexts/useContext'
+import { firestore } from '../../firebase'
 
 export default function FileBookmarkButton({ file }) {
   const [loading, setLoading] = useState(true)
@@ -21,7 +21,7 @@ export default function FileBookmarkButton({ file }) {
       e.preventDefault()
 
       setLoading(true)
-      const bookmarkDoc = doc(firestore, "fileBookmarks", file.id)
+      const bookmarkDoc = doc(firestore, "fileBookmarks", file.id + "-" + user.uid)
 
       setDoc(bookmarkDoc, {
           fileId: file.id,
@@ -41,7 +41,7 @@ export default function FileBookmarkButton({ file }) {
       e.preventDefault()
 
       setLoading(true)
-      const bookmarkDoc = doc(firestore, "fileBookmarks", file.id)
+      const bookmarkDoc = doc(firestore, "fileBookmarks", file.id + "-" + user.uid)
 
       deleteDoc(bookmarkDoc).then(() => {
           console.log("Bookmark deleted")

@@ -1,6 +1,6 @@
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useReducer } from "react";
-import { firestore } from "../firebase";
+import { firestore } from "../../firebase";
 
 const ACTIONS = {
     SET_FRIENDS: "set-friends",

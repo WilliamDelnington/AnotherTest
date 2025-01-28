@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
-import { Link, useNavigate } from 'react-router'
+import { Link, Navigate, useNavigate } from 'react-router'
 import { useAuth } from '../Contexts/useContext'
 
 export default function SignIn() {
@@ -10,7 +10,7 @@ export default function SignIn() {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
 
-    const { signin, checkEmailRegistered } = useAuth()
+    const { user, signin } = useAuth()
 
     const navigate = useNavigate()
 
@@ -35,7 +35,8 @@ export default function SignIn() {
     }
 
   return (
-    <>
+    user ? <Navigate to={`/user/${user.uid}`} /> :
+    (<>
         <h3>Sign In</h3>
         <Form onSubmit={handleSubmit}>
             <Form.Group>
@@ -57,6 +58,6 @@ export default function SignIn() {
             <Button type="submit">Sign In</Button>
             <p>Don't have an account? <Link to={"/signUp"}>Sign Up</Link></p>
         </Form> 
-    </>
+    </>)
   )
 }

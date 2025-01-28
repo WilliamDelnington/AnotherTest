@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
-import { Link, useNavigate } from 'react-router'
+import { Link, Navigate, useNavigate } from 'react-router'
 import { useAuth } from '../Contexts/useContext'
 
 export default function SignUp() {
@@ -11,7 +11,7 @@ export default function SignUp() {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
 
-    const { signup, checkEmailRegistered } = useAuth()
+    const {user, signup, checkEmailRegistered } = useAuth()
 
     const navigate = useNavigate()
 
@@ -67,6 +67,7 @@ export default function SignUp() {
     }
 
   return (
+    user ? <Navigate to={`/user/${user.uid}`} /> :
     <>
         <h3>Sign Up</h3>
         <Form onSubmit={handleSubmit}>
