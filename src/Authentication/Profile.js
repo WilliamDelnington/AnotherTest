@@ -4,26 +4,19 @@ import { Button, Image } from 'react-bootstrap'
 import { Link, Navigate, useNavigate } from 'react-router'
 import { getDownloadURL, ref } from 'firebase/storage'
 import { useAuth } from '../Contexts/useContext'
+import { useProfile } from '../components/hooks/useProfile'
 
 export default function Profile() {
     const [error, setError] = useState("")
     const [imageUrl, setImageUrl] = useState("")
+    const [friends, setFriends] = useState([])
+    const [bookmarkFiles, setBookmarkFiles] = useState([])
+    const [bookmarkFolders, setBookmarkFolders] = useState([])
 
     const { user, logout } = useAuth()
     const navigate = useNavigate()
 
-    useEffect(() => {
-      if (user) {
-        if (!user.photoURL) {
-          const defaultImageRef = ref(storage, "profileImages/default.jpg")
-          getDownloadURL(defaultImageRef).then(downloadURL => {
-            setImageUrl(downloadURL)
-          })
-        } else {
-          setImageUrl(user.photoURL)
-        }
-      }
-    }, [user])
+    const state = useProfile(user)
 
     async function handleLogout(e) {
         e.preventDefault()

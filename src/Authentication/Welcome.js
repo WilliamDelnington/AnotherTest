@@ -1,12 +1,14 @@
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
 import React, { useEffect, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
-import { auth, storage } from '../firebase'
+import { firestore, storage } from '../firebase'
 import { Navigate, useNavigate } from 'react-router'
 import { useAuth } from '../Contexts/useContext'
+import { doc, setDoc } from 'firebase/firestore'
 
 export default function Welcome() {
     const [profileImage, setProfileImage] = useState(null)
+    const [gender, setGender] = useState("male")
     const [imageUrl, setImageUrl] = useState(null)
     const [error, setError] = useState("")
     const [username, setUsername] = useState("")
@@ -71,6 +73,16 @@ export default function Welcome() {
             return
         })
 
+        const userData = doc(firestore, "users", user.uid)
+        setDoc(userData, {
+            displayName: username,
+            email: user.email,
+            profileImageUrl: user.photoUrl,
+            gender: gender,
+            phoneNumber: user.phoneNumber,
+            userId: user.uid
+        })
+
         naivgate("/")
     }
 
@@ -78,7 +90,7 @@ export default function Welcome() {
     !user ? <Navigate to="/signIn" /> :
     (<>
         <h2>Welcome to app!</h2>
-        <img src={imageUrl} />
+        <img src={imageUrl} alt=""/>
         <Form onSubmit={handleSubmit}>
             <Form.Group>
                 <Form.Label>Add your profile image: </Form.Label>
@@ -93,6 +105,14 @@ export default function Welcome() {
                 type="text"
                 value={username}
                 onChange={e => setUsername(e.target.value)}/>
+            </Form.Group>
+            <Form.Group>
+                <Form.Label>What's your gender?</Form.Label>
+                <Form.Select value={gender} onChange={e => setGender(e.target.value)}>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </Form.Select>
             </Form.Group>
             <Button type="submit">Submit</Button>
         </Form>

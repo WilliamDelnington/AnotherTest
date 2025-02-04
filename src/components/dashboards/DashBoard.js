@@ -1,13 +1,13 @@
 import React from 'react'
 import { Container } from 'react-bootstrap'
-import FolderUploadButton from './documents/FolderUploadButton'
-import { useFolder } from './hooks/useFolder'
-import AppNavbar from './header/AppNavbar'
-import Folder from './documents/Folder'
+import FolderUploadButton from '../documents/FolderUploadButton'
+import { useFolder } from '../hooks/useFolder'
+import AppNavbar from '../header/AppNavbar'
+import Folder from '../documents/Folder'
 import { useLocation, useParams } from 'react-router'
-import FileUploadButton from './documents/FileUploadButton'
-import File from './documents/File'
-import { useAuth } from '../Contexts/useContext'
+import FileUploadButton from '../documents/FileUploadButton'
+import File from '../documents/File'
+import { useAuth } from '../../Contexts/useContext'
 
 export default function DashBoard() {
     const { folderId, userId } = useParams()

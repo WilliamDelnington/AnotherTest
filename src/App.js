@@ -13,7 +13,8 @@ import Profile from './Authentication/Profile';
 import UpdateProfile from './Authentication/UpdateProfile';
 import Welcome from './Authentication/Welcome';
 import { AuthProvider } from './Contexts/useContext';
-import DashBoard from './components/DashBoard';
+import DashBoard from './components/dashboards/DashBoard';
+import Chatbox from './components/chat/Chatbox';
 
 function App() {
   const [user, setUser] = useState();
@@ -45,6 +46,8 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<Chatbox />}/>
+
             <Route path="/user/:userId" element={<DashBoard />}/>
             <Route path="/user/:userId/folder/:folderId" element={<DashBoard />} />
 

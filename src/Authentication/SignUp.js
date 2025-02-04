@@ -6,6 +6,7 @@ import { useAuth } from '../Contexts/useContext'
 
 export default function SignUp() {
     const [email, setEmail] = useState("")
+    const [phoneNumber, setPhoneNumber] = useState("")
     const [password, setPassword] = useState("")
     const [retypePassword, setRetypePassword] = useState("")
     const [error, setError] = useState("")
@@ -40,7 +41,8 @@ export default function SignUp() {
         setError("")
         setLoading(true)
         try {
-            const userCredential = await signup(email, password)
+            
+            await signup(email, password)
             navigate("/welcome")
         }
         catch (e) {
@@ -77,6 +79,13 @@ export default function SignUp() {
                 value={email}
                 type='text'
                 onChange={e => setEmail(e.target.value)}/>
+            </Form.Group>
+            <Form.Group>
+                <Form.Label>Phone Number (optional): </Form.Label>
+                <Form.Control 
+                value={phoneNumber}
+                type="tel"
+                onChange={e => setPhoneNumber(e.target.value)}/>
             </Form.Group>
             <Form.Group>
                 <Form.Label>Password: </Form.Label>

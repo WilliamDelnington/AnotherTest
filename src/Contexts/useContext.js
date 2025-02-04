@@ -7,6 +7,7 @@ import {
     signOut, 
     updateEmail,
     updatePassword, 
+    updatePhoneNumber, 
     updateProfile
 } from "firebase/auth"
 import React, { useContext, useEffect, useState } from "react"
@@ -46,6 +47,10 @@ export function AuthProvider({ children }) {
         return updateEmail(user, email)
     }
 
+    function updateUserPhoneNumber(phoneNumber) {
+        return updatePhoneNumber(user, phoneNumber)
+    }
+
     function updateUserPassword(password) {
         return updatePassword(user, password)
     }
@@ -73,6 +78,7 @@ export function AuthProvider({ children }) {
         logout, 
         resetPassword, 
         updateUserEmail, 
+        updateUserPhoneNumber,  // Not implemented in this context. Please use Firebase's phone number support if needed.
         updateUserPassword, 
         updateUsername, 
         updateProfileImage,

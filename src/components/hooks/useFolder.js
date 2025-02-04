@@ -20,7 +20,7 @@ export function useFolder(userId, folderId = null, folder = null) {
         childFiles: [],
     })
 
-    const { user }= useAuth()
+    const { user } = useAuth()
 
     useEffect(() => {
         dispatch({
@@ -102,7 +102,7 @@ export function useFolder(userId, folderId = null, folder = null) {
         }
         
         return () => cleanup()
-    }, [folderId, userId])
+    }, [folderId, userId, user])
 
     useEffect(() => {
         const fileCollection = collection(firestore, "files")
@@ -155,7 +155,7 @@ export function useFolder(userId, folderId = null, folder = null) {
         }
 
         return () => cleanup()
-    }, [folderId, userId])
+    }, [folderId, userId, user])
 
     return state
 }
